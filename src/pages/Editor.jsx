@@ -65,17 +65,16 @@ export default function Editor() {
         if (project && project.canvas_data && project.canvas_data.nodes) {
           setNodes(project.canvas_data.nodes);
 
+          const validHandles = ['left-source', 'right-source', 'top-source', 'bottom-source', 'left-target', 'right-target', 'top-target', 'bottom-target'];
           const legacyFixedEdges = (project.canvas_data.edges || []).map(edge => {
             const newEdge = { ...edge };
-            if (newEdge.sourceHandle && newEdge.sourceHandle.includes('left')) {
-              newEdge.sourceHandle = 'left-source';
-            } else if (newEdge.sourceHandle) {
-              newEdge.sourceHandle = 'right-source';
+            if (newEdge.sourceHandle && !validHandles.includes(newEdge.sourceHandle)) {
+              if (newEdge.sourceHandle.includes('left')) newEdge.sourceHandle = 'left-source';
+              else newEdge.sourceHandle = 'right-source';
             }
-            if (newEdge.targetHandle && newEdge.targetHandle.includes('right')) {
-              newEdge.targetHandle = 'right-target';
-            } else if (newEdge.targetHandle) {
-              newEdge.targetHandle = 'left-target';
+            if (newEdge.targetHandle && !validHandles.includes(newEdge.targetHandle)) {
+              if (newEdge.targetHandle.includes('right')) newEdge.targetHandle = 'right-target';
+              else newEdge.targetHandle = 'left-target';
             }
             return newEdge;
           });
@@ -114,10 +113,6 @@ export default function Editor() {
   const onConnect = useCallback(
     (params) => {
       const fixedParams = { ...params };
-      if (fixedParams.sourceHandle && fixedParams.sourceHandle.includes('left')) fixedParams.sourceHandle = 'left-source';
-      if (fixedParams.sourceHandle && fixedParams.sourceHandle.includes('right')) fixedParams.sourceHandle = 'right-source';
-      if (fixedParams.targetHandle && fixedParams.targetHandle.includes('left')) fixedParams.targetHandle = 'left-target';
-      if (fixedParams.targetHandle && fixedParams.targetHandle.includes('right')) fixedParams.targetHandle = 'right-target';
 
       // Inject FK for 1:N relations
       if (['Associate', 'Compose', 'Aggregate'].includes(connectionType)) {
