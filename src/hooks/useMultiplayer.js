@@ -22,9 +22,9 @@ export default function useMultiplayer(projectId) {
       console.error("Error parsing token", e);
     }
 
-    // Use WS protocol based on current HTTP protocol
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//localhost:4000/api/collaboration/${projectId}/ws?token=${token}`;
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const wsUrlBase = apiUrl.replace(/^http/, 'ws');
+    const wsUrl = `${wsUrlBase}/collaboration/${projectId}/ws?token=${token}`;
 
     ws.current = new WebSocket(wsUrl);
 
