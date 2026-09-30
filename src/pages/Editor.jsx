@@ -446,22 +446,45 @@ export default function Editor() {
         projectId={id}
         onAIGenerate={(newNodes, newEdges) => {
           const idMap = {};
-          const uniqueNodes = newNodes.map(n => {
-            const newId = `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            idMap[n.id] = newId;
-            return { ...n, id: newId };
+          
+          setNodes((prevNodes) => {
+             const updatedNodes = [...prevNodes];
+             newNodes.forEach(n => {
+                const existingIndex = updatedNodes.findIndex(existing => existing.id === n.id || existing.data.tableName.toLowerCase() === n.data.tableName.toLowerCase());
+                
+                if (existingIndex !== -1) {
+                   // Update existing node
+                   updatedNodes[existingIndex] = {
+                      ...updatedNodes[existingIndex],
+                      data: {
+                          ...updatedNodes[existingIndex].data,
+                          ...n.data,
+                          columns: n.data.columns || updatedNodes[existingIndex].data.columns
+                      }
+                   };
+                   // Keep the original ID so edges stay intact
+                   idMap[n.id] = updatedNodes[existingIndex].id;
+                } else {
+                   // Create new node
+                   const newId = `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                   idMap[n.id] = newId;
+                   updatedNodes.push({ ...n, id: newId });
+                }
+             });
+             return updatedNodes;
           });
-          const uniqueEdges = newEdges.map(e => ({
-            ...e,
-            id: `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            source: idMap[e.source] || e.source,
-            target: idMap[e.target] || e.target,
-            sourceHandle: e.sourceHandle || "right-source",
-            targetHandle: e.targetHandle || "left-target",
-          }));
 
-          setNodes((nds) => [...nds, ...uniqueNodes]);
-          setEdges((eds) => [...eds, ...uniqueEdges]);
+          setEdges((prevEdges) => {
+             const uniqueEdges = newEdges.map(e => ({
+               ...e,
+               id: `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+               source: idMap[e.source] || e.source,
+               target: idMap[e.target] || e.target,
+               sourceHandle: e.sourceHandle || "right-source",
+               targetHandle: e.targetHandle || "left-target",
+             }));
+             return [...prevEdges, ...uniqueEdges];
+          });
         }}
       />
       <InviteModal 

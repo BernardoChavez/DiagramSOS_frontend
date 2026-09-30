@@ -72,7 +72,7 @@ export default function AIAssistant({ nodes = [], onAIGenerate, projectId }) {
         prompt: prompt || "Genera el diagrama a partir de la imagen adjunta",
         image_base64: selectedImage?.base64,
         mime_type: selectedImage?.type,
-        current_schema: nodes.map(n => ({ id: n.id, table_name: n.data?.tableName })),
+        current_schema: nodes.map(n => ({ id: n.id, table_name: n.data?.tableName, columns: n.data?.columns })),
         project_id: projectId ? parseInt(projectId) : null
       });
 
